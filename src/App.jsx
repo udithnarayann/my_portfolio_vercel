@@ -447,7 +447,7 @@ export default function App() {
               />
 
               <motion.img
-                src="/Professional_Udith.png"
+                src="/Professional_Udith.jpeg"
                 alt="Udith Narayan"
                 onError={(e) => {
                   e.target.onerror = null;
