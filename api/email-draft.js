@@ -29,18 +29,14 @@ ${details}
 Write the email.
 `;
 
-    const data = await callGemini({
+    const result = await callGemini({
       system: systemPrompt,
       prompt
     });
 
-    const email =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "Failed to generate email.";
-
-    res.status(200).json({ email });
+    res.status(200).json({ email: result.text });
   } catch (err) {
     console.error("Email Draft API Error:", err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Email generation failed" });
   }
 }
