@@ -34,9 +34,10 @@ Write the email.
       prompt
     });
 
-    res.status(200).json({ email: result.text });
+    res.status(200).json({ email: data.text });
   } catch (err) {
     console.error("Email Draft API Error:", err);
     res.status(500).json({ error: "Email generation failed" });
   }
 }
+
