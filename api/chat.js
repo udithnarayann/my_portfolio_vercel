@@ -16,12 +16,12 @@ You are a helpful AI assistant for a developer portfolio website.
 Be concise, professional, and friendly.
 `;
 
-    const result = await callGemini({
+    const data = await callGemini({
       system: systemPrompt,
       prompt: message
     });
 
-    res.status(200).json({ reply: result.text });
+    res.status(200).json({ reply: data.text });
   } catch (err) {
     console.error("Chat API Error:", err);
     res.status(500).json({ error: "Chat failed" });
