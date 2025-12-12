@@ -1,24 +1,19 @@
 // api/chat.js
 export default async function handler(req, res) {
-  console.log("Key Status:", process.env.GEMINI_API_KEY ? "Loaded" : "Missing");
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  // 1. Get the key
+  // 1. Get and Sanitize the Key
+  // This removes accidental spaces or quotes (" ") that might be in the Vercel variable
   let apiKey = process.env.GEMINI_API_KEY;
-
-  // 2. SANITIZE: Remove any accidental spaces, newlines, or quotes
   if (apiKey) {
     apiKey = apiKey.trim().replace(/^["']|["']$/g, '');
   }
 
-  // 3. Check if it's still valid
   if (!apiKey) {
-    return res.status(500).json({ error: "GEMINI_API_KEY is missing or empty" });
-  }
-  if (!apiKey) {
-    return res.status(500).json({ error: "GEMINI_API_KEY not set" });
+    console.error("Error: GEMINI_API_KEY is missing or empty on the server.");
+    return res.status(500).json({ error: "Server Configuration Error: API Key missing" });
   }
 
   const { message, context } = req.body || {};
@@ -30,16 +25,16 @@ export default async function handler(req, res) {
     You are an AI assistant representing AI Engineer Udith Narayan.
     Be concise, friendly, and helpful. 
     
-    Here is the context about Udith (Skills, Projects, Experience):
+    Here is the context about Udith:
     ${JSON.stringify(context || {})}
 
     Answer the user professionally and clearly based strictly on this context.
   `;
 
   try {
-    // UPDATED MODEL: gemini-2.5-flash-lite
+    // 2. Use the correct model: gemini-2.5-flash-lite
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -69,6 +64,3 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "Server error" });
   }
 }
-
-
-
