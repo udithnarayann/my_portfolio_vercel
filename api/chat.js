@@ -27,11 +27,8 @@ export default async function handler(req, res) {
   `;
 
   try {
-    // 4. Send Request (Key in HEADER, not URL)
-    // We revert to 'gemini-1.5-flash' temporarily to ensure stability. 
-    // If this works, we can try 2.5 later.
     const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent", 
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent", 
       {
         method: "POST",
         headers: {
@@ -63,3 +60,4 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 }
+
