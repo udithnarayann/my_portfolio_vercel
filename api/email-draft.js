@@ -1,3 +1,5 @@
+import { callGemini } from "../lib/gemini.js";
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -27,25 +29,10 @@ ${details}
 Write the email.
 `;
 
-    const baseUrl = process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000";
-
-    const response = await fetch(`${baseUrl}/api/gemini`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        system: systemPrompt,
-        prompt
-      })
+    const data = await callGemini({
+      system: systemPrompt,
+      prompt
     });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.error("Email Gemini Error:", data);
-      return res.status(500).json({ error: "Email generation failed" });
-    }
 
     const email =
       data?.candidates?.[0]?.content?.parts?.[0]?.text ||
