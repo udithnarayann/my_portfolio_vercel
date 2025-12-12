@@ -1,63 +1,48 @@
-// api/chat.js
 export default async function handler(req, res) {
-  // 1. Method Check
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  // 2. Load & Sanitize Key
-  let apiKey = process.env.GEMINI_API_KEY;
-  if (apiKey) {
-    // Remove all quotes, spaces, and newlines
-    apiKey = apiKey.replace(/["'\s]/g, "").trim();
-  }
-
-  // 3. Fail fast if key is missing
-  if (!apiKey) {
-    console.error("Critical: GEMINI_API_KEY is missing from Vercel Environment.");
-    return res.status(500).json({ error: "Server Error: API Key Configuration Missing" });
-  }
-
-  const { message, context } = req.body || {};
-  
-  const systemInstruction = `
-    You are an AI assistant representing AI Engineer Udith Narayan.
-    Be concise, friendly, and helpful. 
-    Context: ${JSON.stringify(context || {})}
-  `;
-
   try {
+    const { message } = req.body;
+
+    if (!message || typeof message !== "string") {
+      return res.status(400).json({ error: "Message is required" });
+    }
+
+    const systemPrompt = `
+You are a helpful AI assistant for a developer portfolio website.
+Be concise, professional, and friendly.
+Answer questions about projects, skills, and experience.
+`;
+
     const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent", 
+      `${process.env.VERCEL_URL || ""}/api/gemini`,
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": apiKey // <--- Key goes here now
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          systemInstruction: { parts: [{ text: systemInstruction }] },
-          contents: [{ parts: [{ text: message || "Hello" }] }]
+          system: systemPrompt,
+          prompt: message
         })
       }
     );
 
     const data = await response.json();
 
-    // 5. Handle Google Errors
     if (!response.ok) {
-      console.error("Google API Error:", JSON.stringify(data, null, 2));
-      return res.status(response.status).json({ 
-        error: data.error?.message || "AI Error" 
-      });
+      console.error("Chat Gemini Error:", data);
+      return res.status(500).json({ error: "AI response failed" });
     }
 
-    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response generated.";
-    return res.status(200).json({ reply });
+    // Extract model text safely
+    const text =
+      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "Sorry, I couldn't generate a response.";
 
-  } catch (e) {
-    console.error("Handler Exception:", e);
-    return res.status(500).json({ error: "Internal Server Error" });
+    res.status(200).json({ reply: text });
+  } catch (err) {
+    console.error("Chat API Error:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 }
-
