@@ -7,7 +7,6 @@ export default async function handler(req, res) {
 
   try {
     const { message } = req.body;
-
     if (!message) {
       return res.status(400).json({ error: "Message required" });
     }
@@ -17,18 +16,14 @@ You are a helpful AI assistant for a developer portfolio website.
 Be concise, professional, and friendly.
 `;
 
-    const data = await callGemini({
+    const result = await callGemini({
       system: systemPrompt,
       prompt: message
     });
 
-    const reply =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "Sorry, I couldn't generate a response.";
-
-    res.status(200).json({ reply });
+    res.status(200).json({ reply: result.text });
   } catch (err) {
     console.error("Chat API Error:", err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Chat failed" });
   }
 }
