@@ -27,17 +27,18 @@ ${details}
 Write the email.
 `;
 
-    const response = await fetch(
-      `${process.env.VERCEL_URL || ""}/api/gemini`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          system: systemPrompt,
-          prompt
-        })
-      }
-    );
+    const baseUrl = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000";
+
+    const response = await fetch(`${baseUrl}/api/gemini`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        system: systemPrompt,
+        prompt
+      })
+    });
 
     const data = await response.json();
 
