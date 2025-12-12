@@ -5,7 +5,18 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const apiKey = process.env.GEMINI_API_KEY;
+  // 1. Get the key
+  let apiKey = process.env.GEMINI_API_KEY;
+
+  // 2. SANITIZE: Remove any accidental spaces, newlines, or quotes
+  if (apiKey) {
+    apiKey = apiKey.trim().replace(/^["']|["']$/g, '');
+  }
+
+  // 3. Check if it's still valid
+  if (!apiKey) {
+    return res.status(500).json({ error: "GEMINI_API_KEY is missing or empty" });
+  }
   if (!apiKey) {
     return res.status(500).json({ error: "GEMINI_API_KEY not set" });
   }
@@ -58,5 +69,6 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "Server error" });
   }
 }
+
 
 
