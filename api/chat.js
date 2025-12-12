@@ -16,17 +16,18 @@ Be concise, professional, and friendly.
 Answer questions about projects, skills, and experience.
 `;
 
-    const response = await fetch(
-      `${process.env.VERCEL_URL || ""}/api/gemini`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          system: systemPrompt,
-          prompt: message
-        })
-      }
-    );
+    const baseUrl = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000";
+
+    const response = await fetch(`${baseUrl}/api/gemini`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        system: systemPrompt,
+        prompt: message
+      })
+    });
 
     const data = await response.json();
 
@@ -35,12 +36,11 @@ Answer questions about projects, skills, and experience.
       return res.status(500).json({ error: "AI response failed" });
     }
 
-    // Extract model text safely
-    const text =
+    const reply =
       data?.candidates?.[0]?.content?.parts?.[0]?.text ||
       "Sorry, I couldn't generate a response.";
 
-    res.status(200).json({ reply: text });
+    res.status(200).json({ reply });
   } catch (err) {
     console.error("Chat API Error:", err);
     res.status(500).json({ error: "Internal server error" });
