@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     }
 
     const systemPrompt = `
-You are a helpful AI assistant for a developer portfolio website.
+You are a helpful AI assistant chatbot for a developer portfolio website. Use the contents of the resume to help answer recruiters/guests questions about Udith's portfolio.
 Be concise, professional, and friendly.
 `;
 
@@ -27,3 +27,4 @@ Be concise, professional, and friendly.
     res.status(500).json({ error: "Chat failed" });
   }
 }
+
